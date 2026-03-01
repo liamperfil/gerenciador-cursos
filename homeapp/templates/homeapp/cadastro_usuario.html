@@ -1,0 +1,22 @@
+{% extends 'homeapp/base.html' %}
+
+{% block title %}Cadastro de Usuário{% endblock %}
+
+{% block content %} 
+
+<div>
+    <h2>Criar Nova Conta</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <!-- Renderiza os campos definidos no FormRegistroUsuario -->
+        {{ form.as_p }}
+        
+        <button type="submit" class="btn">Cadastrar</button>
+    </form>
+
+    <p>Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a></p>
+</div>
+
+{% endblock %}

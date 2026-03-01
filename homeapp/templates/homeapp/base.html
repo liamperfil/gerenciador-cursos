@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}App{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}">Início</a> |
+        <a href="{% url 'cursos' %}">Cursos</a> |
+        <a href="{% url 'entrar' %}">Entrar</a>
+    </nav>
+    {% block content %} {% endblock %}
+</body>
+</html>
