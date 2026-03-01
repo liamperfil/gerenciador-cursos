@@ -22,11 +22,13 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('', views.home, name='home'),
     path('cursos/', views.cursos, name='cursos'),
-    path('entrar/', views.entrar, name='entrar'),
 
+    # Cadastro personalizado
     path('cadastro_usuario/', views.cadastro_usuario, name='cadastro_usuario'),
-    path('login/', auth_views.LoginView.as_view(template_name='homeapp/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+    # Login e Logout usando as views prontas do Django
+    path('entrar/', auth_views.LoginView.as_view(template_name='homeapp/entrar.html'), name='login'),
+    path('sair/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
 
     path('admin/', admin.site.urls),
 ]

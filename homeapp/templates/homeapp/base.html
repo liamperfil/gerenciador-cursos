@@ -6,11 +6,19 @@
     <title>{% block title %}App{% endblock %}</title>
 </head>
 <body>
+    
     <nav>
         <a href="{% url 'home' %}">Início</a> |
         <a href="{% url 'cursos' %}">Cursos</a> |
-        <a href="{% url 'entrar' %}">Entrar</a>
+        {% if user.is_authenticated %}
+            <span>Olá, {{ user.username }}</span> |
+            <a href="{% url 'logout' %}">Sair</a>
+        {% else %}
+            <a href="{% url 'entrar' %}">Entrar</a>
+        {% endif %}
     </nav>
-    {% block content %} {% endblock %}
+
+    {% block content %}{% endblock %}
+
 </body>
 </html>

@@ -117,5 +117,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+LOGIN_URL = 'entrar'
 LOGIN_REDIRECT_URL = 'home' # URL da página inicial após login bem-sucedido
-LOGOUT_REDIRECT_URL = 'login' # URL da página de login após logout
+LOGOUT_REDIRECT_URL = 'home' # URL da página de login após logout
