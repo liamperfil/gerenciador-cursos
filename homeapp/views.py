@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import FormRegistroUsuario
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 # Create your views here.
 def home(request):
@@ -17,7 +17,7 @@ def entrar(request):
         user = authenticate(request, username=usuario_post, password=senha_post)
         if user is not None:
             login(request, user)
-            return redirect('home') # Ou para a página de login.html que você criou
+            return redirect('home') # página inicial após login bem-sucedido
     return render(request, 'homeapp/entrar.html')
 
 def cadastro_usuario(request):
@@ -27,7 +27,11 @@ def cadastro_usuario(request):
             form.save()
             username = form.cleaned_data.get('username')
             messages.success(request, f'Conta criada para {username}! Faça login para continuar.')
-            return redirect('login') # Redireciona para a URL de login
+            return redirect('entrar') # Redireciona para a URL de login
     else:
         form = FormRegistroUsuario()
     return render(request, 'homeapp/cadastro_usuario.html', {'form': form})
+
+def sair(request):
+    logout(request) # Redireciona para a página inicial após logout
+    return redirect('home') # Redireciona para a página inicial após logout

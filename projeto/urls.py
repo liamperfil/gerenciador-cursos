@@ -27,8 +27,8 @@ urlpatterns = [
     path('cadastro_usuario/', views.cadastro_usuario, name='cadastro_usuario'),
 
     # Login e Logout usando as views prontas do Django
-    path('entrar/', auth_views.LoginView.as_view(template_name='homeapp/entrar.html'), name='login'),
-    path('sair/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
+    path('entrar/', auth_views.LoginView.as_view(template_name='homeapp/entrar.html'), name='entrar'),
+    path('sair/', auth_views.LogoutView.as_view(next_page='home'), name='sair'),
 
     path('admin/', admin.site.urls),
 ]

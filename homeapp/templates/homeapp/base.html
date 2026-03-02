@@ -12,7 +12,7 @@
         <a href="{% url 'cursos' %}">Cursos</a> |
         {% if user.is_authenticated %}
             <span>Olá, {{ user.username }}</span> |
-            <a href="{% url 'logout' %}">Sair</a>
+            <a href="{% url 'sair' %}">Sair</a>
         {% else %}
             <a href="{% url 'entrar' %}">Entrar</a>
         {% endif %}
