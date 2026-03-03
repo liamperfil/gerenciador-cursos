@@ -1,15 +1,17 @@
 {% extends 'homeapp/base.html' %}
-
-{% block title %}Editar Perfil{% endblock %}
-
 {% block content %} 
-<h2>Completar Perfil de Aluno</h2>
+<h2>Editar Meu Perfil</h2>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Salvar Dados</button>
+    <h3>Dados de Usuário</h3>
+    {{ form_u.as_p }}
+    
+    <hr>
+    <h3>Informações do Aluno</h3>
+    {{ form_p.as_p }}
+    
+    <button type="submit">Salvar Alterações</button>
 </form>
-
 <p><a href="{% url 'home' %}">Cancelar e voltar</a></p>
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .forms import FormRegistroUsuario, FormPerfil
+from .forms import FormRegistroUsuario, FormPerfil, FormEditarUser
 from django.contrib.auth.decorators import login_required
 
 # Create your views here.
@@ -25,12 +25,22 @@ def cadastro_usuario(request):
 @login_required
 def editar_perfil(request):
     perfil = request.user.perfil
+    user = request.user
+    
     if request.method == 'POST':
-        form = FormPerfil(request.POST, instance=perfil)
-        if form.is_valid():
-            form.save()
+        form_u = FormEditarUser(request.POST, instance=user)
+        form_p = FormPerfil(request.POST, request.FILES, instance=perfil) # request.FILES para a foto
+        
+        if form_u.is_valid() and form_p.is_valid():
+            form_u.save()
+            form_p.save()
             messages.success(request, "Perfil atualizado com sucesso!")
             return redirect('home')
     else:
-        form = FormPerfil(instance=perfil)
-    return render(request, 'homeapp/editar_perfil.html', {'form': form})
+        form_u = FormEditarUser(instance=user)
+        form_p = FormPerfil(instance=perfil)
+        
+    return render(request, 'homeapp/editar_perfil.html', {
+        'form_u': form_u,
+        'form_p': form_p
+    })
