@@ -12,6 +12,7 @@
         <a href="{% url 'cursos' %}">Cursos</a> |
         {% if user.is_authenticated %}
             <span>Olá, {{ user.username }}</span> |
+            <a href="{% url 'editar_perfil' %}">Editar Perfil</a> |
             <form action="{% url 'sair' %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" style="background:none; border:none; color:blue; cursor:pointer; text-decoration:underline; padding:0; font-family:inherit; font-size:inherit;">
