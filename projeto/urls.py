@@ -24,12 +24,15 @@ urlpatterns = [
     path('cursos/', views.cursos, name='cursos'),
 
     # Cadastro personalizado
-    path('cadastro_usuario/', views.cadastro_usuario, name='cadastro_usuario'),
+    path('entrar/cadastrar/', views.cadastro_usuario, name='cadastro_usuario'),
 
     # Login e Logout usando as views prontas do Django
     path('entrar/', auth_views.LoginView.as_view(template_name='homeapp/entrar.html'), name='entrar'),
     path('sair/', auth_views.LogoutView.as_view(next_page='home'), name='sair'),
     path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
+
+    path('aula/<int:aula_id>/chamada/', views.realizar_chamada, name='realizar_chamada'),
+    path('professor/painel/', views.painel_professor, name='painel_professor'),
 
     path('admin/', admin.site.urls),
 ]

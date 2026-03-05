@@ -1,0 +1,31 @@
+{% extends 'homeapp/base.html' %}
+
+{% block content %}
+<h2>Chamada: {{ aula.turma }}</h2>
+<p>Data da Aula: {{ aula.data }}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th>Aluno</th>
+                <th>Presente?</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in matriculas %}
+            <tr>
+                <td>{{ m.aluno.user.get_full_name|default:m.aluno.user.username }}</td>
+                <td style="text-align: center;">
+                    <input type="checkbox" name="alunos_presentes" value="{{ m.id }}"
+                           {% if m.id in presencas_atuais %}checked{% endif %}>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <button type="submit">Salvar Chamada</button>
+</form>
+{% endblock %}

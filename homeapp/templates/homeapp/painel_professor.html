@@ -1,0 +1,30 @@
+{% extends 'homeapp/base.html' %}
+
+{% block title %}Painel do Professor{% endblock %}
+
+{% block content %}
+<h2>Meu Painel de Turmas</h2>
+
+{% for turma in turmas %}
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+        <h3>{{ turma }}</h3>
+        <p><strong>Curso:</strong> {{ turma.curso.nome }}</p>
+        <p><strong>Dias:</strong> {{ turma.dias_aula }}</p>
+        
+        <h4>Próximas Aulas / Chamadas:</h4>
+        <ul>
+            {% for aula in turma.aulas.all %}
+                <li>
+                    Data: {{ aula.data }} 
+                    | <a href="{% url 'realizar_chamada' aula.id %}">Realizar Chamada</a>
+                </li>
+            {% empty %}
+                <li>Nenhuma aula cadastrada para esta turma.</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% empty %}
+    <p>Você ainda não possui turmas vinculadas ao seu perfil.</p>
+{% endfor %}
+
+{% endblock %}

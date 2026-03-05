@@ -1,7 +1,35 @@
 {% extends 'homeapp/base.html' %}
 
-{% block title %}Cursos{% endblock %}
+{% block title %}Cursos - EducApp{% endblock %}
 
 {% block content %} 
-<h2>Lista de Cursos</h2>
+<h2>Cursos Disponíveis</h2>
+
+<form method="GET" style="margin-bottom: 20px;">
+    <input type="text" name="busca" placeholder="Buscar curso..." value="{{ request.GET.busca }}">
+    <button type="submit">Pesquisar</button>
+    {% if request.GET.busca %}
+        <a href="{% url 'cursos' %}">Limpar filtro</a>
+    {% endif %}
+</form>
+
+<hr>
+
+{% if cursos %}
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for curso in cursos %}
+            <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 300px;">
+                <h3>{{ curso.nome }}</h3>
+                <p><strong>Categoria:</strong> {{ curso.categoria }}</p>
+                <p><strong>Carga Horária:</strong> {{ curso.carga_horaria }}h</p>
+                <p>{{ curso.descricao|truncatewords:20 }}</p>
+                
+                <a href="#">Ver detalhes</a>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Nenhum curso encontrado para esta busca.</p>
+{% endif %}
+
 {% endblock %}
