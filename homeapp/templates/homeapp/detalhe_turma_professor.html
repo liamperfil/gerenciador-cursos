@@ -1,0 +1,123 @@
+{% extends 'homeapp/base.html' %}
+
+{% block title %}Gestão da Turma - EducApp{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">{{ turma.curso.nome }}</h2>
+            <p class="text-muted">Turma #{{ turma.id }} | Professor: {{ user.get_full_name|default:user.username }}</p>
+        </div>
+        <a href="{% url 'painel_professor' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar ao Painel
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Quadro de Desempenho</h5>
+                    <a href="{% url 'gerar_pdf_desempenho' turma.id %}" class="btn btn-sm btn-light text-dark">
+                        <i class="bi bi-printer"></i> Imprimir Desempenho
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-center small fw-bold">
+                                <tr>
+                                    <th class="text-start ps-3">Aluno</th>
+                                    <th>U1</th>
+                                    <th>U2</th>
+                                    <th>U3</th>
+                                    <th>Final</th>
+                                    <th>Média</th>
+                                    <th>Situação</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                                {% for m in matriculas %}
+                                    {% with n=m.notas_por_unidade %}
+                                    <tr>
+                                        <td class="text-start ps-3 fw-bold">
+                                            {{ m.aluno.user.get_full_name|default:m.aluno.user.username }}
+                                        </td>
+                                        <td>{{ n.u1.valor|default:"-" }}</td>
+                                        <td>{{ n.u2.valor|default:"-" }}</td>
+                                        <td>{{ n.u3.valor|default:"-" }}</td>
+                                        <td class="text-primary fw-bold">{{ n.final.valor|default:"-" }}</td>
+                                        <td class="bg-light fw-bold">{{ m.media_atual }}</td>
+                                        <td>
+                                            <span class="badge {% if 'Aprovado' in m.situacao_detalhada %}bg-success{% elif 'Reprovado' in m.situacao_detalhada %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                                {{ m.situacao_detalhada }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'lancar_nota' m.id %}" class="btn btn-sm btn-primary py-0 px-2" title="Lançar/Editar">
+                                                <i class="bi bi-pencil-square">X</i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endwith %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4 text-muted">Nenhum aluno matriculado.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4 border-primary">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="bi bi-calendar-plus me-2"></i>Agendar Nova Aula
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Data da Aula</label>
+                            <input type="date" name="data" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Anotações / Conteúdo</label>
+                            <textarea name="anotacoes" class="form-control" rows="2" placeholder="Ex: Introdução ao Python e Django"></textarea>
+                        </div>
+                        <button type="submit" name="cadastrar_aula" class="btn btn-primary w-100">
+                            Confirmar Agendamento
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white fw-bold">
+                    <i class="bi bi-journal-text me-2"></i>Diário de Classe
+                </div>
+                <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                    {% for aula in aulas %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 small fw-bold">{{ aula.data|date:"d/m/Y" }}</h6>
+                                <p class="mb-0 text-muted small">{{ aula.anotacoes|truncatechars:30|default:"Sem descrição" }}</p>
+                            </div>
+                            <a href="{% url 'realizar_chamada' aula.id %}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-check2-square"></i> Chamada
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="p-3 text-center text-muted small">Nenhuma aula registrada.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

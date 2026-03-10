@@ -1,0 +1,53 @@
+{% extends 'homeapp/base.html' %}
+{% block title %}{{ curso.nome }} - EducApp{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'cursos' %}">Cursos</a></li>
+                <li class="breadcrumb-item active">{{ curso.nome }}</li>
+            </ol>
+        </nav>
+        
+        <h1 class="display-5 fw-bold">{{ curso.nome }}</h1>
+        <p class="badge bg-info text-dark">{{ curso.categoria }}</p>
+        <hr>
+        <p class="lead">{{ curso.descricao }}</p>
+        <p><strong>Carga Horária:</strong> {{ curso.carga_horaria }} horas</p>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white fw-bold">
+                Turmas Disponíveis
+            </div>
+            <div class="card-body">
+                {% if turmas %}
+                    {% for turma in turmas %}
+                        <div class="mb-4 p-3 border rounded">
+                            <h6><strong>Início:</strong> {{ turma.data_inicio }}</h6>
+                            <p class="small text-muted mb-2">Matrículas até: {{ turma.data_final }}</p>
+                            
+                            {% if turma.id in minhas_matriculas %}
+                                <button class="btn btn-secondary w-100" disabled>Já Matriculado</button>
+                            {% else %}
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="turma_id" value="{{ turma.id }}">
+                                    <button type="submit" class="btn btn-success w-100">Matricular-se</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-warning mb-0">
+                        Não há turmas com matrículas abertas para este curso no momento.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

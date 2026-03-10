@@ -1,0 +1,34 @@
+{% extends 'homeapp/base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                <h3>Lançar Nota</h3>
+                <p class="text-muted">Aluno: {{ matricula.aluno.user.get_full_name }}</p>
+                <hr>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Descrição da Avaliação</label>
+                        <select name="descricao" class="form-select" required>
+                            <option value="Unidade 1">Unidade 1</option>
+                            <option value="Unidade 2">Unidade 2</option>
+                            <option value="Unidade 3">Unidade 3</option>
+                            <option value="Prova Final">Prova Final</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Valor da Nota (0 a 10)</label>
+                        <input type="number" name="valor" step="0.1" min="0" max="10" class="form-control" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Salvar Nota</button>
+                        <a href="{% url 'painel_professor' %}" class="btn btn-light">Voltar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

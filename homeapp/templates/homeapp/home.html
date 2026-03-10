@@ -1,8 +1,59 @@
 {% extends 'homeapp/base.html' %}
+{% load static %}
 
 {% block title %}Início - EducApp{% endblock %}
 
-{% block content %} 
-<h1>Portal EducApp</h1>
-<p>Seu aplicativo gerenciador de cursos!</p>
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border">
+    <div class="container-fluid py-5">
+        <h1 class="display-4 fw-bold text-primary">Bem-vindo ao Portal EducApp</h1>
+        <p class="col-md-8 fs-4 text-muted">A plataforma definitiva para gerenciar cursos, turmas e o desempenho acadêmico em um só lugar. Eficiência para professores, clareza para alunos.</p>
+        
+        {% if not user.is_authenticated %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+                <a href="{% url 'cadastro_usuario' %}" class="btn btn-primary btn-lg px-4 me-md-2">Começar agora</a>
+                <a href="{% url 'cursos' %}" class="btn btn-outline-secondary btn-lg px-4">Explorar Cursos</a>
+            </div>
+        {% else %}
+            <div class="mt-4">
+                <span class="badge bg-success p-2">Sessão Ativa: {{ user.username }}</span>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+    <div class="feature col">
+        <h3 class="fs-2 text-body-emphasis">Cursos Dinâmicos</h3>
+        <p>Explore nosso catálogo de cursos organizados por categoria e carga horária. Encontre a formação ideal para sua carreira.</p>
+        <a href="{% url 'cursos' %}" class="icon-link">
+            Ver cursos
+        </a>
+    </div>
+    <div class="feature col">
+        <h3 class="fs-2 text-body-emphasis">Gestão Docente</h3>
+        <p>Professores podem realizar chamadas em massa, lançar notas e gerenciar suas turmas com ferramentas intuitivas e rápidas.</p>
+        {% if user.perfil.is_professor %}
+            <a href="{% url 'painel_professor' %}" class="icon-link text-success fw-bold">
+                Acessar meu painel
+            </a>
+        {% endif %}
+    </div>
+    <div class="feature col">
+        <h3 class="fs-2 text-body-emphasis">Portal do Aluno</h3>
+        <p>Acompanhe seu percentual de presença, suas notas e o cronograma de futuras aulas de forma transparente e detalhada.</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'editar_perfil' %}" class="icon-link">
+                Meu desempenho
+            </a>
+        {% endif %}
+    </div>
+</div>
+<div class="container mt-5">
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center">
+            <span class="mb-3 mb-md-0 text-body-secondary">&copy; 2026 EducApp Gerenciador de Cursos</span>
+        </div>
+    </footer>
+</div>
 {% endblock %}

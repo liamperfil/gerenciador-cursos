@@ -1,0 +1,86 @@
+{% extends 'homeapp/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Minha Área do Aluno</h2>
+
+    {% if dados_cursos %}
+        {% for item in dados_cursos %}
+            <div class="card shadow-sm p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="m-0">{{ item.matricula.turma.curso.nome }}</h3>
+                    <span class="badge bg-light text-dark border">Status: {{ item.matricula.get_status_display }}</span>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded bg-light">
+                            <h5>Frequência Escolar</h5>
+                            <p class="mb-2">Percentual: <strong>{{ item.percentual_presenca }}%</strong></p>
+                            
+                            <div class="progress mb-3" style="height: 25px; background-color: #e9ecef;">
+                                <div class="progress-bar {% if item.percentual_presenca < 75 %}bg-danger{% else %}bg-success{% endif %}" 
+                                    role="progressbar" 
+                                    style="width: {{ item.percentual_presenca|floatformat:'0' }}%;" 
+                                    aria-valuenow="{{ item.percentual_presenca }}" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100">
+                                    {{ item.percentual_presenca }}%
+                                </div>
+                            </div>
+                            
+                            <ul class="list-unstyled small mb-0">
+                                <li>Chamadas realizadas: <strong>{{ item.total_aulas_ocorridas }}</strong></li>
+                                <li>Minhas Presenças: <span class="text-success">{{ item.presencas_contagem }}</span></li>
+                                <li>Minhas Faltas: <span class="text-danger">{{ item.faltas }}</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded bg-light h-100">
+                            <h5>Notas</h5>
+                            {% if item.notas %}
+                                <table class="table table-sm table-borderless">
+                                    {% for nota in item.notas %}
+                                    <tr>
+                                        <td>{{ nota.descricao_avaliacao }}</td>
+                                        <td class="text-end"><strong>{{ nota.valor }}</strong></td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr class="border-top">
+                                        <td><strong>Média Atual</strong></td>
+                                        <td class="text-end text-primary"><strong>{{ item.matricula.media_atual }}</strong></td>
+                                    </tr>
+                                </table>
+                            {% else %}
+                                <p class="text-muted small">Nenhuma nota lançada.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="text-primary">Cronograma de Aulas</h5>
+                    <div class="list-group list-group-flush border rounded">
+                        {% for aula in item.aulas_cronograma %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                            <span class="small">{{ aula.data|date:"d/m/Y" }} - {{ aula.turma.curso.nome }}</span>
+                            {% if aula.id in item.chamadas_realizadas_ids %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">Ocorrida</span>
+                            {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill">Agendada</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5">
+            <p>Você ainda não possui matrículas.</p>
+            <a href="{% url 'cursos' %}" class="btn btn-primary">Ver Cursos</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

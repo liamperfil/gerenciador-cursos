@@ -1,30 +1,115 @@
 {% extends 'homeapp/base.html' %}
 
-{% block title %}Painel do Professor{% endblock %}
+{% block title %}Painel do Professor - EducApp{% endblock %}
 
 {% block content %}
-<h2>Meu Painel de Turmas</h2>
-
-{% for turma in turmas %}
-    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-        <h3>{{ turma }}</h3>
-        <p><strong>Curso:</strong> {{ turma.curso.nome }}</p>
-        <p><strong>Dias:</strong> {{ turma.dias_aula }}</p>
-        
-        <h4>Próximas Aulas / Chamadas:</h4>
-        <ul>
-            {% for aula in turma.aulas.all %}
-                <li>
-                    Data: {{ aula.data }} 
-                    | <a href="{% url 'realizar_chamada' aula.id %}">Realizar Chamada</a>
-                </li>
-            {% empty %}
-                <li>Nenhuma aula cadastrada para esta turma.</li>
-            {% endfor %}
-        </ul>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="display-6">Meu Painel de Turmas</h2>
+        <span class="badge bg-primary p-2">Professor: {{ user.get_full_name|default:user.username }}</span>
     </div>
-{% empty %}
-    <p>Você ainda não possui turmas vinculadas ao seu perfil.</p>
-{% endfor %}
 
+    {% if turmas %}
+        {% for turma in turmas %}
+            <div class="card mb-5 shadow-sm border-0">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0">
+                        <i class="bi bi-book-half me-2"></i>
+                        <strong>{{ turma.curso.nome }}</strong> 
+                        <small class="ms-2 text-light opacity-75">(Início: {{ turma.data_inicio|date:"d/m/Y" }})</small>
+                    </h5>
+                    <div class="btn-group">
+                        <a href="{% url 'detalhe_turma_professor' turma.id %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-gear-fill me-1"></i> Gerenciar Turma
+                        </a>
+                        <a href="{% url 'gerar_pdf_presenca' turma.id %}" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF de Presença
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Dias de Aula</p>
+                            <p class="mb-0"><i class="bi bi-calendar-check me-2"></i>{{ turma.dias_aula }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Total de Alunos</p>
+                            <p class="mb-0"><i class="bi bi-people me-2"></i>{{ turma.matriculas.count }} matriculados</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <p class="mb-1 text-muted small text-uppercase fw-bold">Status da Turma</p>
+                            <span class="badge bg-success">Em Andamento</span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="fw-bold mb-3 text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">
+                        Visão Rápida de Desempenho
+                    </h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Aluno</th>
+                                    <th class="text-center">Média Atual</th>
+                                    <th class="text-center">Situação</th>
+                                    <th class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for m in turma.matriculas.all %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                {{ m.aluno.user.username|slice:":1"|upper }}
+                                            </div>
+                                            <span>{{ m.aluno.user.get_full_name|default:m.aluno.user.username }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <strong class="{% if m.media_atual >= 7 %}text-success{% elif m.media_atual >= 5 %}text-warning{% else %}text-danger{% endif %}">
+                                            {{ m.media_atual }}
+                                        </strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge 
+                                            {% if 'Aprovado' in m.situacao_detalhada %}bg-success
+                                            {% elif 'Reprovado' in m.situacao_detalhada %}bg-danger
+                                            {% elif 'Recuperação' in m.situacao_detalhada %}bg-warning text-dark
+                                            {% else %}bg-info text-dark{% endif %} 
+                                            border rounded-pill px-3">
+                                            {{ m.situacao_detalhada }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{% url 'lancar_nota' m.id %}" class="btn btn-sm btn-outline-primary py-1 px-3">
+                                            Lançar Nota
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-white text-end border-top-0 pb-3">
+                    <small class="text-muted italic">Última atualização: {% now "d/m/Y H:i" %}</small>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-5 border rounded bg-light mt-4">
+            <i class="bi bi-journal-x display-1 text-muted mb-3"></i>
+            <p class="lead text-muted">Você ainda não possui turmas vinculadas ao seu perfil de professor.</p>
+            <p class="small">Se você acredita que isso é um erro, entre em contato com a coordenação em Salvador.</p>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

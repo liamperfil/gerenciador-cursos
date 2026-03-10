@@ -1,6 +1,7 @@
-from django.core.exceptions import ValidationError
-from django.db import models
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -65,25 +66,51 @@ class Aula(models.Model):
 class Matricula(models.Model):
     STATUS_CHOICES = [
         ('A', 'Ativa'),
+        ('C', 'Concluída'),
         ('T', 'Trancada'),
-        ('C', 'Cancelada'),
+        ('D', 'Desistente'),
     ]
-    
     aluno = models.ForeignKey(Perfil, on_delete=models.CASCADE, limit_choices_to={'is_aluno': True})
-    turma = models.ForeignKey(Turma, on_delete=models.CASCADE)
+    turma = models.ForeignKey(Turma, on_delete=models.CASCADE, related_name='matriculas')
     data_matricula = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(
-        max_length=1, 
-        choices=STATUS_CHOICES, 
-        default='A'
-    )
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A')
 
     class Meta:
-        # Mantemos a restrição de unicidade que corrigimos anteriormente
         unique_together = ('aluno', 'turma')
 
+    # REGRA DE NEGÓCIO: Cálculo de Média e Aprovação
+    @property
+    def notas_por_unidade(self):
+        """Retorna um dicionário com as notas organizadas"""
+        notas = self.notas.all()
+        return {
+            'u1': notas.filter(descricao_avaliacao='Unidade 1').first(),
+            'u2': notas.filter(descricao_avaliacao='Unidade 2').first(),
+            'u3': notas.filter(descricao_avaliacao='Unidade 3').first(),
+            'final': notas.filter(descricao_avaliacao='Prova Final').first(),
+        }
+
+    @property
+    def media_atual(self):
+        n = self.notas_por_unidade
+        notas_validas = [nota.valor for nota in [n['u1'], n['u2'], n['u3'], n['final']] if nota]
+        if not notas_validas: return 0
+        divisor = 4 if n['final'] else 3 # Regra da Prova Final
+        return round(sum(notas_validas) / divisor, 1)
+
+    @property
+    def situacao_detalhada(self):
+        n = self.notas_por_unidade
+        # Lógica para turmas em andamento ou finalizadas
+        if n['u1'] and n['u2'] and n['u3']:
+            if self.media_atual >= 7.0: return "Aprovado"
+            if n['final']:
+                return "Aprovado (Pós-Final)" if self.media_atual >= 5.0 else "Reprovado"
+            return "Na Recuperação / Aguardando Final"
+        return "Cursando (Notas Parciais)"
+
     def __str__(self):
-        return f"{self.aluno.user.get_full_name() or self.aluno.user.username} | {self.turma}"
+        return f"{self.aluno.user.username} - {self.turma}"
 
 class Presenca(models.Model):
     aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
@@ -92,22 +119,18 @@ class Presenca(models.Model):
     presente = models.BooleanField(default=True)
 
 class Nota(models.Model):
-    matricula = models.ForeignKey(Matricula, on_delete=models.CASCADE)
-    descricao_avaliacao = models.CharField(max_length=100)
-    valor = models.DecimalField(max_digits=5, decimal_places=2)
+    # Usando related_name='notas' para facilitar a busca na Matricula
+    matricula = models.ForeignKey(Matricula, on_delete=models.CASCADE, related_name='notas')
+    descricao_avaliacao = models.CharField(max_length=100) # Ex: Unidade 1, Prova Final
+    valor = models.DecimalField(
+        max_digits=4, 
+        decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(10)]
+    )
+    data_lancamento = models.DateTimeField(auto_now=True)
 
-    def clean(self):
-        # Regra: Impede lançar nota se a matrícula não estiver Ativa
-        if self.matricula.status == 'C': # 'C' de Cancelada
-            raise ValidationError(
-                f"Não é possível lançar nota para {self.matricula.aluno}. A matrícula está Cancelada."
-            )
-        if self.matricula.status == 'T': # 'T' de Trancada
-            raise ValidationError("A matrícula está trancada. Ative-a antes de lançar a nota.")
-
-    def save(self, *args, **kwargs):
-        self.full_clean() # Garante que o clean seja chamado antes de salvar
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.descricao_avaliacao}: {self.valor} ({self.matricula.aluno.user.username})"
 
 class Pagamento(models.Model):
     STATUS_CHOICES = [

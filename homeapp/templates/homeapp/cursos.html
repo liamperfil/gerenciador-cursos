@@ -1,35 +1,41 @@
 {% extends 'homeapp/base.html' %}
-
 {% block title %}Cursos - EducApp{% endblock %}
 
-{% block content %} 
-<h2>Cursos Disponíveis</h2>
-
-<form method="GET" style="margin-bottom: 20px;">
-    <input type="text" name="busca" placeholder="Buscar curso..." value="{{ request.GET.busca }}">
-    <button type="submit">Pesquisar</button>
-    {% if request.GET.busca %}
-        <a href="{% url 'cursos' %}">Limpar filtro</a>
-    {% endif %}
-</form>
-
-<hr>
-
-{% if cursos %}
-    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-        {% for curso in cursos %}
-            <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 300px;">
-                <h3>{{ curso.nome }}</h3>
-                <p><strong>Categoria:</strong> {{ curso.categoria }}</p>
-                <p><strong>Carga Horária:</strong> {{ curso.carga_horaria }}h</p>
-                <p>{{ curso.descricao|truncatewords:20 }}</p>
-                
-                <a href="#">Ver detalhes</a>
-            </div>
-        {% endfor %}
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-6">
+        <h2 class="display-6">Cursos Disponíveis</h2>
     </div>
-{% else %}
-    <p>Nenhum curso encontrado para esta busca.</p>
-{% endif %}
+    <div class="col-md-6">
+        <form method="GET" class="d-flex">
+            <input class="form-control me-2" type="text" name="busca" placeholder="O que você quer aprender?" value="{{ request.GET.busca }}">
+            <button class="btn btn-outline-primary" type="submit">Buscar</button>
+        </form>
+    </div>
+</div>
 
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for curso in cursos %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <span class="badge bg-info text-dark mb-2">{{ curso.categoria }}</span>
+                <h5 class="card-title">{{ curso.nome }}</h5>
+                <p class="card-text text-muted">{{ curso.descricao|truncatewords:15 }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 pb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-secondary"><i class="bi bi-clock"></i> {{ curso.carga_horaria }}h</small>
+                    <a href="{% url 'detalhe_curso' curso.id %}" class="btn btn-sm btn-primary">Ver detalhes e turmas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <p class="lead">Nenhum curso encontrado.</p>
+        <a href="{% url 'cursos' %}" class="btn btn-link">Limpar filtros</a>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

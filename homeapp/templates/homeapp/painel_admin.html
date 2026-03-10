@@ -1,0 +1,65 @@
+{% extends 'homeapp/base.html' %}
+{% block title %}Gestão EducApp{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="display-6">Painel de Gestão Administrativa</h2>
+        <p class="text-muted">Bem-vindo, gestor. Aqui você controla a estrutura do EducApp.</p>
+    </div>
+</div>
+
+<div class="row mb-5 text-center">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white p-3">
+            <h3>{{ total_alunos }}</h3>
+            <small>Alunos</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white p-3">
+            <h3>{{ total_professores }}</h3>
+            <small>Professores</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white p-3">
+            <h3>{{ cursos_ativos }}</h3>
+            <small>Cursos Publicados</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark p-3">
+            <h3>{{ turmas_andamento }}</h3>
+            <small>Turmas Ativas</small>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header fw-bold">Gestão de Conteúdo</div>
+            <div class="card-body">
+                <p>Crie novos cursos e organize o catálogo.</p>
+                <div class="d-grid gap-2">
+                    <a href="/admin/homeapp/curso/add/" class="btn btn-outline-primary">Novo Curso</a>
+                    <a href="/admin/homeapp/curso/" class="btn btn-outline-secondary">Gerenciar Cursos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header fw-bold">Gestão de Turmas e Professores</div>
+            <div class="card-body">
+                <p>Defina horários e atribua professores às turmas.</p>
+                <div class="d-grid gap-2">
+                    <a href="/admin/homeapp/turma/add/" class="btn btn-outline-success">Criar Nova Turma</a>
+                    <a href="/admin/homeapp/perfil/?is_professor__exact=1" class="btn btn-outline-secondary">Ver Professores</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
