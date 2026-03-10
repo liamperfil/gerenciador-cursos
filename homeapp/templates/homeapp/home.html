@@ -4,10 +4,14 @@
 {% block title %}Início - EducApp{% endblock %}
 
 {% block content %}
-<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border">
-    <div class="container-fluid py-5">
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm border d-flex justify-content-center" style="background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)), 
+            url('https://images.unsplash.com/photo-1607013407627-6ee814329547?q=80&w=964&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); 
+            background-size: cover; 
+            background-position: center; 
+            min-height: 450px;">
+    <div class="container-fluid py-5" style="max-width: 900px;">
         <h1 class="display-4 fw-bold text-primary">Bem-vindo ao Portal EducApp</h1>
-        <p class="col-md-8 fs-4 text-muted">A plataforma definitiva para gerenciar cursos, turmas e o desempenho acadêmico em um só lugar. Eficiência para professores, clareza para alunos.</p>
+        <p class="fs-4 text-muted">A plataforma definitiva para gerenciar cursos, turmas e o desempenho acadêmico em um só lugar. Eficiência para professores, clareza para alunos.</p>
         
         {% if not user.is_authenticated %}
             <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
@@ -15,7 +19,7 @@
                 <a href="{% url 'cursos' %}" class="btn btn-outline-secondary btn-lg px-4">Explorar Cursos</a>
             </div>
         {% else %}
-            <div class="mt-4">
+            <div class="mt-4 text-start">
                 <span class="badge bg-success p-2">Sessão Ativa: {{ user.username }}</span>
             </div>
         {% endif %}
@@ -26,29 +30,24 @@
     <div class="feature col">
         <h3 class="fs-2 text-body-emphasis">Cursos Dinâmicos</h3>
         <p>Explore nosso catálogo de cursos organizados por categoria e carga horária. Encontre a formação ideal para sua carreira.</p>
-        <a href="{% url 'cursos' %}" class="icon-link">
-            Ver cursos
-        </a>
+        <a href="{% url 'cursos' %}" class="icon-link">Ver cursos</a>
     </div>
     <div class="feature col">
         <h3 class="fs-2 text-body-emphasis">Gestão Docente</h3>
         <p>Professores podem realizar chamadas em massa, lançar notas e gerenciar suas turmas com ferramentas intuitivas e rápidas.</p>
         {% if user.perfil.is_professor %}
-            <a href="{% url 'painel_professor' %}" class="icon-link text-success fw-bold">
-                Acessar meu painel
-            </a>
+            <a href="{% url 'painel_professor' %}" class="icon-link text-success fw-bold">Acessar meu painel</a>
         {% endif %}
     </div>
     <div class="feature col">
         <h3 class="fs-2 text-body-emphasis">Portal do Aluno</h3>
         <p>Acompanhe seu percentual de presença, suas notas e o cronograma de futuras aulas de forma transparente e detalhada.</p>
         {% if user.is_authenticated %}
-            <a href="{% url 'editar_perfil' %}" class="icon-link">
-                Meu desempenho
-            </a>
+            <a href="{% url 'painel_aluno' %}" class="icon-link">Meu desempenho</a>
         {% endif %}
     </div>
 </div>
+
 <div class="container mt-5">
     <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
         <div class="col-md-4 d-flex align-items-center">

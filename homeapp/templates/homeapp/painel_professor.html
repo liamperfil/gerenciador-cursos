@@ -46,55 +46,6 @@
 
                     <hr class="my-4">
 
-                    <h6 class="fw-bold mb-3 text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">
-                        Visão Rápida de Desempenho
-                    </h6>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Aluno</th>
-                                    <th class="text-center">Média Atual</th>
-                                    <th class="text-center">Situação</th>
-                                    <th class="text-end">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for m in turma.matriculas.all %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                                                {{ m.aluno.user.username|slice:":1"|upper }}
-                                            </div>
-                                            <span>{{ m.aluno.user.get_full_name|default:m.aluno.user.username }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <strong class="{% if m.media_atual >= 7 %}text-success{% elif m.media_atual >= 5 %}text-warning{% else %}text-danger{% endif %}">
-                                            {{ m.media_atual }}
-                                        </strong>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge 
-                                            {% if 'Aprovado' in m.situacao_detalhada %}bg-success
-                                            {% elif 'Reprovado' in m.situacao_detalhada %}bg-danger
-                                            {% elif 'Recuperação' in m.situacao_detalhada %}bg-warning text-dark
-                                            {% else %}bg-info text-dark{% endif %} 
-                                            border rounded-pill px-3">
-                                            {{ m.situacao_detalhada }}
-                                        </span>
-                                    </td>
-                                    <td class="text-end">
-                                        <a href="{% url 'lancar_nota' m.id %}" class="btn btn-sm btn-outline-primary py-1 px-3">
-                                            Lançar Nota
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                {% endfor %}
-                            </tbody>
-
                         </table>
                     </div>
                 </div>
