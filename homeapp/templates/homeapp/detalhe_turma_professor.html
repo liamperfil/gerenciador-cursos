@@ -57,7 +57,7 @@
                                         </td>
                                         <td>
                                             <a href="{% url 'lancar_nota' m.id %}" class="btn btn-sm btn-primary py-0 px-2" title="Lançar/Editar">
-                                                Editar<i class="bi bi-pencil-square"></i>
+                                                Lançar<i class="bi bi-pencil-square"></i>
                                             </a>
                                         </td>
                                     </tr>
@@ -108,15 +108,23 @@
                                 <h6 class="mb-0 small fw-bold">{{ aula.data|date:"d/m/Y" }}</h6>
                                 <p class="mb-0 text-muted small">{{ aula.anotacoes|truncatechars:30|default:"Sem descrição" }}</p>
                             </div>
-                            <a href="{% url 'realizar_chamada' aula.id %}" class="btn btn-sm btn-outline-success">
-                                <i class="bi bi-check2-square"></i> Chamada
-                            </a>
+                            
+                            {% if aula.id in aulas_com_chamada_ids %}
+                                <a href="{% url 'realizar_chamada' aula.id %}" class="btn btn-sm btn-secondary opacity-75">
+                                    <i class="bi bi-check-all"></i> Realizada
+                                </a>
+                            {% else %}
+                                <a href="{% url 'realizar_chamada' aula.id %}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-check2-square"></i> Chamada
+                                </a>
+                            {% endif %}
                         </div>
                     {% empty %}
                         <div class="p-3 text-center text-muted small">Nenhuma aula registrada.</div>
                     {% endfor %}
                 </div>
             </div>
+
         </div>
     </div>
 </div>

@@ -39,10 +39,8 @@ class PresencaAdmin(admin.ModelAdmin):
     get_aluno.short_description = 'Aluno'
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        """
-        Esta lógica filtra os alunos no dropdown de 'Matrícula' 
-        para exibir apenas quem pertence à turma daquela aula.
-        """
+        # Esta lógica filtra os alunos no dropdown de 'Matrícula' 
+        # para exibir apenas quem pertence a turma daquela aula, para não exibir todos os alunos do sistema
         if db_field.name == "matricula":
             # Tenta pegar o ID da aula se você estiver editando uma
             aula_id = request.resolver_match.kwargs.get('object_id')

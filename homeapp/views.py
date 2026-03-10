@@ -205,10 +205,16 @@ def detalhe_turma_professor(request, turma_id):
     aulas = Aula.objects.filter(turma=turma).order_by('-data')
     matriculas = Matricula.objects.filter(turma=turma, status='A')
 
+    # Busca os IDs das aulas que já possuem ao menos um registro de presença
+    aulas_com_chamada_ids = Presenca.objects.filter(
+        aula__turma=turma
+    ).values_list('aula_id', flat=True).distinct()
+
     return render(request, 'homeapp/detalhe_turma_professor.html', {
         'turma': turma,
         'aulas': aulas,
         'matriculas': matriculas,
+        'aulas_com_chamada_ids': aulas_com_chamada_ids, # Enviado para o template
     })
 
 @login_required
