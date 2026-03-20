@@ -1,8 +1,10 @@
-from datetime import date
+from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.mail import send_mail
 from django.http import FileResponse
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,6 +16,7 @@ from .forms import FormRegistroUsuario, FormPerfil, FormEditarUser
 from .models import Aula, Matricula, Presenca, Perfil, Turma, Curso, Nota
 
 import io
+import requests
 
 def home(request):
     return render(request, 'homeapp/home.html')
@@ -219,25 +222,49 @@ def detalhe_turma_professor(request, turma_id):
 
 @login_required
 def lancar_nota(request, matricula_id):
+    if not request.user.perfil.is_professor:
+        messages.error(request, "Acesso negado.")
+        return redirect('home')
+    
     matricula = get_object_or_404(Matricula, id=matricula_id)
     
     if request.method == 'POST':
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         
-        # O uso de update_or_create impede notas duplicadas para a mesma unidade
-        nota, created = Nota.objects.update_or_create(
+        # Cria a nota
+        nova_nota, created = Nota.objects.update_or_create(
             matricula=matricula,
             descricao_avaliacao=descricao,
             defaults={'valor': valor}
         )
         
-        if created:
-            messages.success(request, "Nota lançada com sucesso!")
-        else:
-            messages.info(request, "Nota atualizada com sucesso!")
+        # Lógica de Notificação por E-mail
+        try:
+            assunto = f"Nova nota lançada: {matricula.turma.curso.nome}"
+            mensagem = (
+                f"Olá, {matricula.aluno.user.first_name}!\n\n"
+                f"Uma nova nota foi lançada para você na disciplina {matricula.turma.curso.nome}.\n"
+                f"Atividade: {descricao}\n"
+                f"Nota: {valor}\n\n"
+                f"Acesse o Portal EducApp para conferir seu desempenho detalhado."
+            )
+            email_destino = matricula.aluno.user.email
             
-        return redirect('detalhe_turma_professor', turma_id=matricula.turma.id)
+            if email_destino:
+                send_mail(
+                    assunto,
+                    mensagem,
+                    settings.EMAIL_HOST_USER,
+                    [email_destino],
+                    fail_silently=False,
+                )
+        except Exception as e:
+            # Caso o envio falhe, a nota continua salva, mas avisamos no log
+            print(f"Erro ao enviar e-mail: {e}")
+
+        messages.success(request, "Nota lançada e aluno notificado por e-mail!")
+        return redirect('painel_professor')
 
     return render(request, 'homeapp/lancar_nota.html', {'matricula': matricula})
 
@@ -330,3 +357,53 @@ def gerar_pdf_desempenho(request, turma_id):
     p.save()
     buffer.seek(0)
     return FileResponse(buffer, as_attachment=True, filename=f'desempenho_turma_{turma.id}.pdf')
+
+def noticias(request):
+    ano_atual = timezone.now().year
+    url_api = f"https://brasilapi.com.br/api/feriados/v1/{ano_atual}"
+    feriados = []
+    erro_api = False
+
+    try:
+        response = requests.get(url_api, timeout=5)
+        if response.status_code == 200:
+            dados_brutos = response.json()
+            
+            # Convertemos a string 'date' em um objeto date real do Python
+            for item in dados_brutos:
+                item['date_obj'] = datetime.strptime(item['date'], '%Y-%m-%d').date()
+                feriados.append(item)
+        else:
+            erro_api = True
+    except Exception as e:
+        print(f"Erro ao conectar com BrasilAPI: {e}")
+        erro_api = True
+
+    url_api_moedas = "https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL"
+    try:
+        response_moedas = requests.get(url_api_moedas, timeout=5)
+        if response_moedas.status_code == 200:
+            dados_moedas = response_moedas.json()
+            d_raw = dados_moedas.get('USDBRL', {}).get('bid')
+            e_raw = dados_moedas.get('EURBRL', {}).get('bid')
+            b_raw = dados_moedas.get('BTCBRL', {}).get('bid')
+
+            f_br = lambda v: f"R$ {float(v):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") if v else None
+
+            dolar = f_br(d_raw)
+            euro = f_br(e_raw)
+            bitcoin = f_br(b_raw)
+        else:
+            print("Erro ao obter dados de moedas.")
+    except Exception as e:
+        print(f"Erro ao conectar com API de moedas: {e}")
+        dolar = euro = bitcoin = None
+
+    return render(request, 'homeapp/noticias.html', {
+        'feriados': feriados,
+        'ano': ano_atual,
+        'erro_api': erro_api,
+        'dolar': dolar,
+        'euro': euro,
+        'bitcoin': bitcoin
+    })

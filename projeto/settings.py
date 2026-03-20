@@ -123,3 +123,13 @@ LOGIN_REDIRECT_URL = 'home' # URL da página inicial após login bem-sucedido
 LOGOUT_REDIRECT_URL = 'home' # URL da página de login após logout
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Apenas para desenvolvimento (exibe o e-mail no terminal)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Para produção (Ex: Gmail/SendGrid)
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'seu-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'sua-senha-de-app'

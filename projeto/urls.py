@@ -47,6 +47,9 @@ urlpatterns = [
 
     # Django Admin System
     path('admin/', admin.site.urls),
+
+    # Outras urls
+    path('noticias/', views.noticias, name='noticias'),
 ]
 
 if settings.DEBUG:
